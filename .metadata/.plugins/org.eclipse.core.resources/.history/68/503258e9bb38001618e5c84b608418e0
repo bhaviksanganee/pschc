@@ -1,0 +1,69 @@
+package com.vmware.services;
+
+import com.unboundid.ldap.sdk.BindResult;
+import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPConnectionPool;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPSearchException;
+import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPInterruptedException;
+
+
+//private static final int  max_numbof_connection = 2;
+
+public class PSCLdapConnection {
+	
+	public static LDAPConnection connection = null;
+	public void setLDAPConnection()
+	{	
+	try {
+//		LDAPConnection connection = new LDAPConnection(address, port);
+//	     BindResult bindResult = connection.bind(DN, password);
+//	     LDAPConnectionPool connectionPool = new LDAPConnectionPool(connection, max_numbof_connection);
+		connection = new LDAPConnection();
+		connection.connect("10.162.41.122", 389);
+		 
+		connection.bind("cn=Administrator,cn=users,dc=vSphere,dc=local", "Admin!23");
+		System.out.println("connected");
+	    } catch (LDAPException e) {
+	        String es = e.getExceptionMessage();
+	        System.out.println(es);
+	    }
+	}
+	
+	public String dnFromUsername() throws LDAPException {
+//		  String baseDN = config.getUserBaseDN();
+//		  String lookup = String.format("(%s=%s)", config.getUserAttribute(), username);
+		Filter filter = Filter.createEqualityFilter("cn", "Users");
+		  SearchRequest searchRequest = new SearchRequest("dc=vSphere,dc=local", SearchScope.SUB, filter);
+
+//		  LDAPConnection connection = connectionFactory.getLDAPConnection();
+		  SearchResult sr;
+		  try {
+		    sr = connection.search(searchRequest);
+System.out.println("sr-"  + sr);
+
+	System.out.println(sr.getEntryCount());
+//		    if (sr.getEntryCount() == 0) {
+//		      throw new LDAPException(ResultCode.INVALID_CREDENTIALS);
+//		    }
+//		    for (SearchResultEntry entry : sr.getSearchEntries())
+//		    {
+//		      String name = entry.getAttributeValue("cn");
+//		      String upn = entry.getAttributeValue("userPrincipalName");
+//		      System.out.println("name - " + name + ", upn - " + upn);
+//		    }
+		    //return sr.getSearchEntries().get(0).getDN();
+		  } catch (Exception lse)
+		  {
+			   // The search failed for some reason.
+			   System.out.println("error - " + lse.getMessage());
+			 }
+		  return "success";
+		}
+}

@@ -1,0 +1,101 @@
+package com.vmware.services;
+
+import java.util.ArrayList;
+
+import com.unboundid.ldap.sdk.BindResult;
+import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPConnectionPool;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPSearchException;
+import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPInterruptedException;
+import com.vmware.model.PSCNodeModal;
+
+
+//private static final int  max_numbof_connection = 2;
+
+public class PSCLdapConnection {
+	
+	public static final String OBJECT_CLASS = "objectClass";
+	public static final String BASE_DN = "dc=vSphere,dc=local";
+	public static LDAPConnection connection = null;
+	
+	public void setLDAPConnection()
+	{	
+	try {
+//		LDAPConnection connection = new LDAPConnection(address, port);
+//	     BindResult bindResult = connection.bind(DN, password);
+//	     LDAPConnectionPool connectionPool = new LDAPConnectionPool(connection, max_numbof_connection);
+		connection = new LDAPConnection();
+		connection.connect("10.162.41.122", 389);
+		 
+		connection.bind("cn=Administrator,cn=users,dc=vSphere,dc=local", "Admin!23");
+		System.out.println("connected");
+	    } catch (LDAPException e) {
+	        String es = e.getExceptionMessage();
+	        System.out.println(es);
+	    }
+	}
+	
+	public ArrayList<PSCNodeModal> genPSCNodes() throws LDAPException {
+
+		ArrayList<PSCNodeModal> pscNodes = new ArrayList<PSCNodeModal>();
+		
+		
+		Filter filter = Filter.createEqualityFilter(OBJECT_CLASS , "vmwDirServer");
+		SearchRequest searchRequest = new SearchRequest(BASE_DN , SearchScope.SUB, filter);
+		SearchResult sr;
+		
+		try {
+		    sr = connection.search(searchRequest);
+		    System.out.println("sr-"  + sr);
+			if (sr.getEntryCount() == 0) {
+				throw new LDAPException(ResultCode.INVALID_CREDENTIALS);
+			}
+			PSCNodeModal pscNodeModal;
+			for (SearchResultEntry entry : sr.getSearchEntries()){
+				pscNodeModal = new PSCNodeModal();
+				pscNodeModal.setCn(entry.getAttributeValue("cn"));
+				pscNodes.add(pscNodeModal);
+			}
+			
+			for (PSCNodeModal node : pscNodes){
+				System.out.println(node.getCn());
+			}
+
+//vmwReplicationAgreement
+			
+			Filter filter2 = Filter.createEqualityFilter(OBJECT_CLASS , "vmwReplicationAgreement");
+			SearchRequest searchRequest2 = new SearchRequest("cn=sc-rdops-vm04-dhcp-120-252.eng.vmware.com,dc=vSphere,dc=local" , SearchScope.SUB, filter);
+			SearchResult sr2;
+			
+			try {
+			    sr = connection.search(searchRequest);
+			    System.out.println("sr-"  + sr);
+				if (sr.getEntryCount() == 0) {
+					throw new LDAPException(ResultCode.INVALID_CREDENTIALS);
+				}
+				for (SearchResultEntry entry : sr.getSearchEntries()){
+					pscNodeModal = new PSCNodeModal();
+					//pscNodeModal.setReplicationList(replicationList);(entry.getAttributeValue("labeledURI"));
+					System.out.println("rep - " + entry.getAttributeValue("labeledURI"));
+					//pscNodes.add(pscNodeModal);
+				}
+				
+				for (PSCNodeModal node : pscNodes){
+					System.out.println(node.getCn());
+				}
+				
+		  } catch (Exception lse)
+		  {
+			   // The search failed for some reason.
+			   System.out.println("error - " + lse.getMessage());
+			 }
+		  return pscNodes;
+		}
+}

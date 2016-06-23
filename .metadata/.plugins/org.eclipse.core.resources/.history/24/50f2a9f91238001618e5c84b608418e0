@@ -1,0 +1,6 @@
+<html>
+<body>
+	<h1>PSC healthchecker</h1>
+	
+	<h4>${welcomeMessage }</h4>
+</body></html>
