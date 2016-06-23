@@ -2,6 +2,8 @@ package com.vmware.services;
 
 import java.util.ArrayList;
 
+import javax.xml.bind.DatatypeConverter;
+
 import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -13,7 +15,6 @@ import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
-import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPInterruptedException;
 import com.vmware.model.PSCNodeModal;
 
 
@@ -48,6 +49,7 @@ public class PSCLdapConnection {
 		
 		
 		Filter filter = Filter.createEqualityFilter(OBJECT_CLASS , "vmwDirServer");
+		
 		SearchRequest searchRequest = new SearchRequest(BASE_DN , SearchScope.SUB, filter);
 		SearchResult sr;
 		
@@ -61,6 +63,13 @@ public class PSCLdapConnection {
 			for (SearchResultEntry entry : sr.getSearchEntries()){
 				pscNodeModal = new PSCNodeModal();
 				pscNodeModal.setCn(entry.getAttributeValue("cn"));
+				
+				byte[] buffer = entry.getAttributeValueBytes("nTSecurityDescriptor");
+				String text = new String(entry.getAttributeValue("nTSecurityDescriptor"));
+				// a few lines that prove I can process the data successfully
+				String element = new String(buffer);
+				System.out.println("ele - " + element);
+				System.out.println("text - " + text);
 				pscNodes.add(pscNodeModal);
 			}
 			
@@ -76,8 +85,10 @@ public class PSCLdapConnection {
 
 //vmwReplicationAgreement
 			
-			Filter filter2 = Filter.createEqualityFilter(OBJECT_CLASS , "vmwReplicationAgreement");
-			filter2 = Filter.createEqualityFilter("cn" , "cn=sc-rdops-vm04-dhcp-120-252.eng.vmware.com");
+			Filter filter2 = Filter.createORFilter(
+						Filter.createEqualityFilter(OBJECT_CLASS , "vmwReplicationAgreement"),
+						Filter.createEqualityFilter("ou", "sc-rdops-vm04-dhcp-120-252.eng.vmware.com"));
+			//Filter filter3 = Filter.createEqualityFilter("cn" , "cn=sc-rdops-vm04-dhcp-120-252.eng.vmware.com");
 			
 			SearchRequest searchRequest2 = new SearchRequest("dc=vSphere,dc=local" , SearchScope.SUB, filter2);
 			SearchResult sr2;
@@ -92,6 +103,8 @@ public class PSCLdapConnection {
 					//pscNodeModal = new PSCNodeModal();
 					//pscNodeModal.setReplicationList(replicationList);(entry.getAttributeValue("labeledURI"));
 					System.out.println("rep - " + entry.getAttributeValue("labeledURI"));
+					//System.out.println("rep - " + entry.getAttributeValue("cn"));
+					
 					//pscNodes.add(pscNodeModal);
 				}
 				
