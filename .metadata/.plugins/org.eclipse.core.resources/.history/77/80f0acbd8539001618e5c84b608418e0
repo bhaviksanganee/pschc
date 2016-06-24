@@ -1,0 +1,11 @@
+package com.vmware.model;
+
+import java.util.ArrayList;
+public class SiteModal {
+
+		private String site_cn;
+		private ArrayList<PSCNodeModal> pscNodes;
+		private ArrayList<String> services;
+		
+
+}

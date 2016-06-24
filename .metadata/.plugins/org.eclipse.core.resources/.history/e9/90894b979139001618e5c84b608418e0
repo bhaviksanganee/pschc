@@ -1,0 +1,119 @@
+package com.vmware.services;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.xml.bind.DatatypeConverter;
+
+import com.unboundid.ldap.sdk.BindResult;
+import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPConnectionPool;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPSearchException;
+import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SearchScope;
+import com.vmware.model.PSCNodeModal;
+
+
+//private static final int  max_numbof_connection = 2;
+
+public class PSCLdapConnection {
+	
+	public static final String OBJECT_CLASS = "objectClass";
+	public static final String BASE_DN = "dc=vSphere,dc=local";
+	public static LDAPConnection connection = null;
+	
+	public void setLDAPConnection()
+	{	
+	try {
+//		LDAPConnection connection = new LDAPConnection(address, port);
+//	     BindResult bindResult = connection.bind(DN, password);
+//	     LDAPConnectionPool connectionPool = new LDAPConnectionPool(connection, max_numbof_connection);
+		connection = new LDAPConnection();
+		connection.connect("10.162.41.122", 389);
+		 
+		connection.bind("cn=Administrator,cn=users,dc=vSphere,dc=local", "Admin!23");
+		System.out.println("connected");
+	    } catch (LDAPException e) {
+	        String es = e.getExceptionMessage();
+	        System.out.println(es);
+	    }
+	}
+	
+	public HashMap<String, PSCNodeModal> genPSCNodes() throws LDAPException {
+
+		HashMap<String, PSCNodeModal> pscNodes = new HashMap<String, PSCNodeModal>();
+		
+		
+		Filter filter = Filter.createEqualityFilter(OBJECT_CLASS , "vmwDirServer");
+		Filter filter2 = 
+				Filter.createEqualityFilter(OBJECT_CLASS , "vmwReplicationAgreement");
+		
+		SearchRequest searchRequest = new SearchRequest(BASE_DN , SearchScope.SUB, filter);
+		SearchResult sr;
+		
+		try {
+		    sr = connection.search(searchRequest);
+		    System.out.println("sr-"  + sr);
+			if (sr.getEntryCount() == 0) {
+				throw new LDAPException(ResultCode.INVALID_CREDENTIALS);
+			}
+			PSCNodeModal pscNodeModal;
+			for (SearchResultEntry entry : sr.getSearchEntries()){
+				String[] dn = entry.getDN().split(",");
+				pscNodeModal = new PSCNodeModal();
+				pscNodeModal.setPsc_cn(dn[0]);
+				pscNodeModal.setSite_cn(dn[2]);
+				pscNodes.put(dn[0], pscNodeModal);
+				SearchRequest searchRequest3 = new SearchRequest(entry.getDN() , SearchScope.SUB, filter2);
+				SearchResult sr3;
+				sr3 = connection.search(searchRequest3);
+				for (SearchResultEntry entry2 : sr3.getSearchEntries()){
+			    	String[] replication_dn = entry.getDN().split(",");
+			    	ArrayList<String> replicationList = new ArrayList<String>();
+			    	replicationList.add(replication_dn[0]);
+			    	pscNodeModal.setReplicationList(replicationList);
+				}
+				
+			}
+			System.out.println(pscNodes.toString());
+			
+		}
+		catch (Exception lse){
+			// The search failed for some reason.
+			System.out.println("error - " + lse.getMessage());
+		}
+
+//vmwReplicationAgreement
+			
+			
+//			SearchRequest searchRequest2 = new SearchRequest("dc=vSphere,dc=local" , SearchScope.SUB, filter2);
+//			SearchResult sr2;
+//			
+//			try {
+//			    sr2 = connection.search(searchRequest2);
+//			    for (SearchResultEntry entry : sr2.getSearchEntries()){
+//			    	String[] replication_dn = entry.getDN().split(",");
+//			    	System.out.println("DN NAme - " + entry.getDN());
+//			    	PSCNodeModal pscServer = pscNodes.get(replication_dn[2]);
+//			    	ArrayList<String> replicationList = new ArrayList<String>();
+//			    	replicationList.add(replication_dn[0]);
+//			    	pscServer.setReplicationList(replicationList);
+//			    }
+//				if (sr2.getEntryCount() == 0) {
+//					throw new LDAPException(ResultCode.INVALID_CREDENTIALS);
+//				}
+
+//		  } catch (Exception lse)
+//		  {
+//			   // The search failed for some reason.
+//			   System.out.println("error - " + lse.getMessage());
+//			 }
+		  return pscNodes;
+		}
+}

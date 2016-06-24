@@ -1,0 +1,28 @@
+package com.vmware.model;
+
+import java.util.ArrayList;
+public class SiteModal {
+
+		private String site_cn;
+		private ArrayList<PSCNodeModal> pscServer;
+		private ArrayList<String> services;
+		
+		public String getSite_cn() {
+			return site_cn;
+		}
+		public void setSite_cn(String site_cn) {
+			this.site_cn = site_cn;
+		}
+		public ArrayList<PSCNodeModal> getPscServer() {
+			return pscServer;
+		}
+		public void setPscServer(ArrayList<PSCNodeModal> pscServer) {
+			this.pscServer = pscNodes;
+		}
+		public ArrayList<String> getServices() {
+			return services;
+		}
+		public void setServices(ArrayList<String> services) {
+			this.services = services;
+		}
+}

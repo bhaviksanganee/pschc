@@ -1,0 +1,23 @@
+package com.vmware.model;
+
+import java.util.ArrayList;
+
+public class PSCNodeModal {
+	private String psc_cn;
+	private ArrayList<String> replicationList;
+	
+	public String getPsc_cn() {
+		return psc_cn;
+	}
+	public void setPsc_cn(String psc_cn) {
+		this.psc_cn = psc_cn;
+	}
+	public ArrayList<String> getReplicationList() {
+		return replicationList;
+	}
+	public void setReplicationList(ArrayList<String> replicationList) {
+		this.replicationList = replicationList;
+	}
+	
+
+}
