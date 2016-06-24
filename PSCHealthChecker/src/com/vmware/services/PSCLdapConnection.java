@@ -2,16 +2,11 @@ package com.vmware.services;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.DatatypeConverter;
-
-import com.unboundid.ldap.sdk.BindResult;
-import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
-import com.unboundid.ldap.sdk.LDAPConnectionPool;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -19,7 +14,6 @@ import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
-import com.vmware.model.PSCNodeModal;
 import com.vmware.model.SiteModal;
 
 
@@ -31,18 +25,17 @@ public class PSCLdapConnection {
 	public static final String BASE_DN = "dc=vSphere,dc=local";
 	public static LDAPConnection connection = null;
 	
-	public void setLDAPConnection()
+	public void setLDAPConnection(HashMap<String,String> hmConnect)
 	{	
 	try {
 
-//		connection = new LDAPConnection();
-//		connection.connect("10.162.41.122", 389);
-//		 
-//		connection.bind("cn=Administrator,cn=users,dc=vSphere,dc=local", "Admin!23");
 		connection = new LDAPConnection();
 		connection.connect("wdc-esxcpd-dhcp-24255", 389);
-		 
 		connection.bind("cn=Administrator,cn=users,dc=vSphere,dc=local", "VMware1!");
+		
+//		connection = new LDAPConnection();
+//		connection.connect(hmConnect.get("host"), Integer.valueOf(hmConnect.get("port")));
+//		connection.bind(hmConnect.get("username"), hmConnect.get("password"));
 	    } catch (LDAPException e) {
 	        String es = e.getExceptionMessage();
 	        System.out.println(es);
@@ -61,7 +54,7 @@ public class PSCLdapConnection {
 		SearchResult sr;
 		String SITE_DN = "cn=Sites,cn=Configuration,dc=vsphere,dc=local";
 		
-		//objectClass = vmwLKUPServiceRegistration
+		HashMap<String,ArrayList<String>> lbMap = new HashMap<String,ArrayList<String>>();
 		try {
 		    sr = connection.search(searchRequest);
 			if (sr.getEntryCount() == 0) {
@@ -85,8 +78,12 @@ public class PSCLdapConnection {
 					ArrayList<String> arrServices = new ArrayList<String>();
 					for (SearchResultEntry entry3 : servicesResult.getSearchEntries()){
 						arrServices.add(entry3.getAttributeValue("vmwLKUPType"));
+						if(entry3.getAttributeValue("vmwLKUPType").equals("cs.identity")){
+								getLBMap(entry3,lbMap);
+						}
 					}
 					siteModal.setServices(arrServices);
+					siteModal.setLbPSC(lbMap);
 				}
 				siteModal.setSite_cn(site_cn[1]);
 				
@@ -104,14 +101,11 @@ public class PSCLdapConnection {
 					psc_replication = siteModal.getPscReplicationServers();
 					psc_replication.put(psc_cn[1], replicationList);
 					siteModal.setPscReplicationServers(psc_replication);
-					System.out.println("inside if");
 				}else{
 					psc_replication = new HashMap<String,ArrayList<String>>();
 					psc_replication.put(psc_cn[1], replicationList);
 					siteModal.setPscReplicationServers(psc_replication);
 					arrPSCServers.add(siteModal);
-					System.out.println(" Site = " + siteModal.toString());
-					System.out.println(" array = " + arrPSCServers.toString());
 				}
 				siteNodes.put(site_cn[1], siteModal);
 			}
@@ -124,4 +118,30 @@ public class PSCLdapConnection {
 
 		  return arrPSCServers;
 		}
+	private Map<String,ArrayList<String>> getLBMap(SearchResultEntry ssoEntry, Map<String,ArrayList<String>> lbMap) throws LDAPSearchException{
+		 			String ownerId = ssoEntry.getAttributeValue("vmwLKUPOwnerId");
+		 			String fqdn = ownerId != null ? ownerId.split("@")[0] : null;
+		 			if (fqdn == null) return null;
+		 
+		 			Filter endpointFilter = 
+		 							Filter.createEqualityFilter("vmwLKUPEndpointType","com.vmware.cis.cs.identity.sso");
+		 					SearchRequest searchRequest = new SearchRequest(ssoEntry.getDN(), SearchScope.SUB, endpointFilter);
+		 			SearchResult endPointResult = connection.search(searchRequest);
+		 			String stsUri = null;
+		 			for (SearchResultEntry entry3 : endPointResult.getSearchEntries()){
+						stsUri = entry3.getAttributeValue("vmwLKUPURI");
+					}
+		 			String haFqdn = stsUri.split("/")[2];
+		 
+		 			if(fqdn.equals(haFqdn)){
+		 				return lbMap; 
+		 			}else{
+		 				ArrayList<String> nodesList =  lbMap.get(haFqdn);
+		 				nodesList = nodesList == null ? new ArrayList<String>() : nodesList;
+		 				nodesList.add(fqdn);
+		 				lbMap.put(haFqdn, nodesList);
+		 				return lbMap;
+		 			}
+		 			
+		 		}
 }

@@ -8,20 +8,31 @@
 <script type="text/javascript" src="<c:url value='/resources/js/diagram.js' />" ></script>
 <script type="text/javascript" src="<c:url value='/resources/js/jquery-1.8.0.js' />" ></script>
 <script type="text/javascript" src="<c:url value='/resources/js/bootstrap.js' />" ></script>
-<link rel="stylesheet" type="text/css" href="<c:url value='/resources/css/diagram.css' />" media="screen" />
-<link rel="stylesheet" type="text/css" href="<c:url value='/resources/css/bootstrap.css' />" media="screen" />
+    <script type="text/javascript" src="<c:url value='/resources/js/raphael-min.js'/>" ></script>
+    <script type="text/javascript" src="<c:url value='/resources/js/dracula_graffle.js'/>"></script>
+    <script type="text/javascript" src="<c:url value='/resources/js/dracula_graph.js'/>"></script>
+    <script type="text/javascript" src="<c:url value='/resources/js/example.js'/>"></script>
+<link rel="stylesheet" type="text/css" href="<c:url value='/resources/css/diagram.css'/>" media="screen" />
+<link rel="stylesheet" type="text/css" href="<c:url value='/resources/css/bootstrap.css'/>" media="screen" />
 </head>
 <body>
 	<h1>PSC healthchecker</h1>
-	
-<h3>${siteNodesObject}</h3>
+	<!-- <h4>${siteNodesObject}</h4> -->
+<div>	
+<input type="hidden" id="siteNodeData" value='${siteNodesObject}' />
+<input type="hidden" id="host" value='${host}' />
+</div>
 <br><hr>
-<c:forEach var="entry" items="${siteNodesObject}">
-	Site:  ${entry.site_cn} <br/>
-	replication: ${entry.pscReplicationServers} <br/>
-	
-</c:forEach>
+<div id="canvas"></div>
+<button id="redraw" onclick="redraw();">redraw</button>
+<button id="hide_penguin" onclick="hide('penguin');">hide penguin (beta)</button>
+<button id="hide_penguin" onclick="show('penguin');">show penguin (beta)</button>
 
+<!-- 
+
+<svg id="cont2" height="160" width="160" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<circle id="cir1" cx="300" cy="300" r="40" stroke="yellow" stroke-width="" />
+</svg>
 	<svg id="treesvg" height="460" width="958">
 	<g id="g_lines">
 		<line y2="100" x2="280" y1="30" x1="300"></line>
@@ -42,5 +53,12 @@
 	</g>
 	
 	</svg>
-
+ <svg id="cont" height="1000" width="1000" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <circle id="cir1" cx="300" cy="300" r="40" stroke="yellow" stroke-width="" fill="none" />
+</svg>
+ -->
+ 
+<script type="text/javascript">
+	//window.onload = drawDiag();
+</script>
 </body></html>

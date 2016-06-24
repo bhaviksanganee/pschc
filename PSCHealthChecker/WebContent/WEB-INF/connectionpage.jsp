@@ -14,18 +14,18 @@
 <title>Connect to DB</title>
 </head>
 <body>
-<h1>PSC Health Checker <small>Connect to your LDAP</small></h1>
 <div class="container" style="width:500px">
+	<h1>PSC Health Checker <br><small>Connect to your LDAP</small></h1>
   <div class="row" id="login-container">
     <div class="span8 offset2">
 			<form action="/PSCHealthChecker/connect" method="post">
 			  <fieldset class="form-group">
 			    <label for="host">Host</label>
-			    <input type="text" class="form-control" id="host" placeholder="Enter host">
+			    <input type="text" class="form-control" id= "host" name="host" placeholder="Enter host">
 			  </fieldset>
 			  <fieldset class="form-group">
 			    <label for="port">Port</label>
-			    <input type="text" class="form-control" id="port" placeholder="Enter port">
+			    <input type="text" class="form-control" name="port" placeholder="Enter port">
 			  </fieldset>
 			  <fieldset class="form-group">
 			    <label for="protocols">Protocol</label>
@@ -43,11 +43,11 @@
 			  </div>
 			    <div class="form-group">
 			    <label for="username">User DN</label>
-			    <input type="text" class="form-control" id="username" placeholder="cn=Administrator,cn=users,dc=vSphere,dc=local">
+			    <input type="text" class="form-control" name="username" placeholder="cn=Administrator,cn=users,dc=vSphere,dc=local">
 			  </div>
 			  <div class="form-group">
 			    <label for="password">Password</label>
-			    <input type="password" class="form-control" id="password" placeholder="Password">
+			    <input type="password" class="form-control" name="password" placeholder="Password">
 			  </div>
 			  <button type="submit" class="btn btn-info">Submit</button>
 			</form>
