@@ -28,7 +28,8 @@ public class PscHealthController{
 		
 		PSCLdapConnection conn = new PSCLdapConnection();
 		conn.setLDAPConnection();
-		ArrayList<SiteModal> siteNodesObject = conn.genPSCNodes();
+		Map<String,ArrayList<String>> lbMap;
+		ArrayList<SiteModal> siteNodesObject = conn.genPSCNodes(lbMap);
 		modelandview.addObject("siteNodesObject" , siteNodesObject);
 		return modelandview;
 	}
