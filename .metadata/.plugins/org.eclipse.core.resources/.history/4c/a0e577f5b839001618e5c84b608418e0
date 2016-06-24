@@ -59,9 +59,7 @@ public class PSCLdapConnection {
 		
 		SearchRequest searchRequest = new SearchRequest(BASE_DN , SearchScope.SUB, filter);
 		SearchResult sr;
-		String SITE_DN = "cn=Sites,cn=Configuration,dc=vsphere,dc=local";
 		
-		//objectClass = vmwLKUPServiceRegistration
 		try {
 		    sr = connection.search(searchRequest);
 			if (sr.getEntryCount() == 0) {
@@ -73,20 +71,10 @@ public class PSCLdapConnection {
 				String[] dn = entry.getDN().split(",");
 				String[] psc_cn = dn[0].split("=");
 				String[] site_cn = dn[2].split("=");
-				
 				if (siteNodes.containsKey(site_cn[1])){
 					siteModal = siteNodes.get(site_cn[1]);
 				}else{
 					siteModal = new SiteModal();
-					Filter serviceRegistrationFilter = 
-							Filter.createEqualityFilter(OBJECT_CLASS , "vmwLKUPServiceRegistration");
-					SearchRequest searchRequest3 = new SearchRequest(dn[2] +"," + SITE_DN , SearchScope.SUB, serviceRegistrationFilter);
-					SearchResult servicesResult = connection.search(searchRequest3);
-					ArrayList<String> arrServices = new ArrayList<String>();
-					for (SearchResultEntry entry3 : servicesResult.getSearchEntries()){
-						arrServices.add(entry3.getAttributeValue("vmwLKUPType"));
-					}
-					siteModal.setServices(arrServices);
 				}
 				siteModal.setSite_cn(site_cn[1]);
 				
@@ -108,7 +96,6 @@ public class PSCLdapConnection {
 				}else{
 					psc_replication = new HashMap<String,ArrayList<String>>();
 					psc_replication.put(psc_cn[1], replicationList);
-					siteModal.setPscReplicationServers(psc_replication);
 					arrPSCServers.add(siteModal);
 					System.out.println(" Site = " + siteModal.toString());
 					System.out.println(" array = " + arrPSCServers.toString());

@@ -80,13 +80,12 @@ public class PSCLdapConnection {
 					siteModal = new SiteModal();
 					Filter serviceRegistrationFilter = 
 							Filter.createEqualityFilter(OBJECT_CLASS , "vmwLKUPServiceRegistration");
-					SearchRequest searchRequest3 = new SearchRequest(dn[2] +"," + SITE_DN , SearchScope.SUB, serviceRegistrationFilter);
+					SearchRequest searchRequest3 = new SearchRequest(dn[2] +"," + SITE_DN , SearchScope.SUB, filter);
 					SearchResult servicesResult = connection.search(searchRequest3);
 					ArrayList<String> arrServices = new ArrayList<String>();
 					for (SearchResultEntry entry3 : servicesResult.getSearchEntries()){
 						arrServices.add(entry3.getAttributeValue("vmwLKUPType"));
 					}
-					siteModal.setServices(arrServices);
 				}
 				siteModal.setSite_cn(site_cn[1]);
 				
