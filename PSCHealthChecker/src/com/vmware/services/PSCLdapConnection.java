@@ -49,7 +49,7 @@ public class PSCLdapConnection {
 	    }
 	}
 	
-	public ArrayList<SiteModal> genPSCNodes() throws LDAPException {
+	public ArrayList<SiteModal> genPSCNodes(Map<String,ArrayList<String>> ilbMap) throws LDAPException {
 
 		ArrayList<SiteModal> arrPSCServers = new ArrayList<SiteModal>();	
 		HashMap<String, SiteModal> siteNodes = new HashMap<String, SiteModal>();	
@@ -61,6 +61,9 @@ public class PSCLdapConnection {
 		SearchResult sr;
 		String SITE_DN = "cn=Sites,cn=Configuration,dc=vsphere,dc=local";
 		
+		Map<String,ArrayList<String>> lbMap = new HashMap<String,ArrayList<String>>();
+		ilbMap = lbMap;
+
 		//objectClass = vmwLKUPServiceRegistration
 		try {
 		    sr = connection.search(searchRequest);
@@ -85,6 +88,13 @@ public class PSCLdapConnection {
 					ArrayList<String> arrServices = new ArrayList<String>();
 					for (SearchResultEntry entry3 : servicesResult.getSearchEntries()){
 						arrServices.add(entry3.getAttributeValue("vmwLKUPType"));
+
+						if(entry3.getAttributeValue("vmwLKUPType").equals("cs.identity")){
+							getLBMap(entry3,lbMap);
+						}
+
+
+
 					}
 					siteModal.setServices(arrServices);
 				}
@@ -123,5 +133,30 @@ public class PSCLdapConnection {
 		}
 
 		  return arrPSCServers;
+		}
+
+		private Map<String,ArrayList<String>> getLBMap(SearchResultEntry ssoEntry, Map<String,ArrayList<String>> lbMap){
+			String ownerId = ssoEntry.getAttributeValue("vmwLKUPOwnerId");
+			String fqdn = ownerId != null ? ownerId.split("@")[0] : null;
+			if (fqdn == null) return;
+
+			Filter endpointFilter = 
+							Filter.createEqualityFilter("vmwLKUPEndpointType","com.vmware.cis.cs.identity.sso");
+					SearchRequest searchRequest = new SearchRequest(ssoEntry.getDN(), SearchScope.SUB, endpointFilter);
+			SearchResult endPointResult = connection.search(searchRequest);
+
+			String stsUri = endPointResult.getAttributeValue("vmwLKUPURI");
+			String haFqdn = stsUri.split("/")[2];
+
+			if(fqdn.equals(haFqdn)){
+				return lbMap; 
+			}else{
+				List<String> nodesList =  lbMap.get(haFqdn);
+				nodesList = nodesList == null ? new ArrayList<String>() : nodesList;
+				nodesList.add(fqdn);
+				lbMap.put(haFqdn, nodesList);
+				return lbMap;
+			}
+			
 		}
 }
