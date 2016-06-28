@@ -10,7 +10,15 @@ public class SiteModal {
 		private HashMap<String,ArrayList<String>> pscReplicationServers;
 		private ArrayList<String> services;
 		private HashMap<String, ArrayList<String>> lbPSC;
-		
+		private ArrayList<String> vcServices;
+
+		public ArrayList<String> getVcServices() {
+			return vcServices;
+		}
+
+		public void setVcServices(ArrayList<String> vcServices) {
+			this.vcServices = vcServices;
+		}
 
 		public HashMap<String, ArrayList<String>> getLbPSC() {
 			return lbPSC;
@@ -20,12 +28,14 @@ public class SiteModal {
 			this.lbPSC = lbPSC;
 		}
 	
+
+
 		@Override
 		public String toString() {
 			return "SiteModal [site_cn=" + site_cn + ", pscServers="
 					+ pscServers + ", pscReplicationServers="
 					+ pscReplicationServers + ", services=" + services
-					+ ", lbPSC=" + lbPSC + "]";
+					+ ", lbPSC=" + lbPSC + ", vcServices=" + vcServices + "]";
 		}
 
 		public String getJSON(){
@@ -37,8 +47,8 @@ public class SiteModal {
 		private String getJsonFromHash(
 				HashMap<String, ArrayList<String>> pscRS) {
 			StringBuffer strOut = new StringBuffer();
-			if (pscRS == null)
-				return "null";
+			if ((pscRS == null) || (pscRS.size()==0)) 
+				return "[]";
 			strOut.append("{");
 			for (String key : pscRS.keySet()){
 				strOut.append("\"" + key + "\": [");

@@ -22,43 +22,71 @@
 <input type="hidden" id="siteNodeData" value='${siteNodesObject}' />
 <input type="hidden" id="host" value='${host}' />
 </div>
-<br><hr>
-<div id="canvas"></div>
-<button id="redraw" onclick="redraw();">redraw</button>
-<button id="hide_penguin" onclick="hide('penguin');">hide penguin (beta)</button>
-<button id="hide_penguin" onclick="show('penguin');">show penguin (beta)</button>
+<div class="container">
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#home">Home</a></li>
+    <li><a data-toggle="tab" href="#menu1">List View</a></li>
+    <li><a data-toggle="tab" href="#menu2">Other Data</a></li>
+  </ul>
 
-<!-- 
+  <div class="tab-content">
+    <div id="home" class="tab-pane fade in active">
+      <h3>Graph Representation</h3>
+		<div id="canvas"></div>
+		<button id="redraw" onclick="redraw();">redraw</button>
+		<button id="hide_penguin" onclick="hide('penguin');">hide penguin (beta)</button>
+		<button id="hide_penguin" onclick="show('penguin');">show penguin (beta)</button>
+    </div>
+    <div id="menu1" class="tab-pane fade">
+      <h3>List View</h3>
+      
+      <table  class="table table-striped">
+      	<thead>
+      		<tr>
+      			<th>Site name</th>
+      			<th>PSC links</th>
+      			<th>Services</th>
+      			<th>Load Balancer</th>
+      			<th>VCenter</th>
+      		</tr>
+      	</thead>
+		<c:forEach var="siteNode" items="${siteNodes}">
+			<tr>
+				<td>${siteNode.site_cn}</td>
+				<td>
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th>PSC Node</th>
+								<th>PSC Replication</th>
+							</tr>
+						</thead>
+						<c:forEach var="entry" items="${siteNode.pscReplicationServers}">
+						<tr>
+						<td>
+						  ${entry.key} </td>
+						<td>${entry.value }</td>
+						</tr>
+						</c:forEach>
+					</table>
+				</td>				
+				<td>${siteNode.services }</td>
+				<td>${siteNode.lbPSC }</td>		
+				<td>${siteNode.vcServices }</td>		
+			</tr>
+		</c:forEach>
+		</table>
+${sitesNodes}<hr>     
+    </div>
+    <div id="menu2" class="tab-pane fade">
+      <h3>Menu 2</h3>
+      <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>
+    </div>
+  </div>
+</div>
 
-<svg id="cont2" height="160" width="160" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-	<circle id="cir1" cx="300" cy="300" r="40" stroke="yellow" stroke-width="" />
-</svg>
-	<svg id="treesvg" height="460" width="958">
-	<g id="g_lines">
-		<line y2="100" x2="280" y1="30" x1="300"></line>
-		<line y2="100" x2="320" y1="30" x1="300"></line>
-	</g>
-	<g id="g_circles">
-		<circle r="12" cy="30" cx="300"></circle>
-		<circle r="12" cy="100" cx="280"></circle>
-		<circle r="12" cy="100" cx="320"></circle>
-	</g>
-	<g id="g_labels">
-		<text y="35" x="300">?</text>
-		<text y="105" x="280">?</text>
-		<text y="105" x="320">?</text></g>
-	<g id="g_elabels">
-		<text y="65" x="282">se</text>
-		<text y="65" x="318">xe</text>
-	</g>
-	
-	</svg>
- <svg id="cont" height="1000" width="1000" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <circle id="cir1" cx="300" cy="300" r="40" stroke="yellow" stroke-width="" fill="none" />
-</svg>
- -->
+
+
+
  
-<script type="text/javascript">
-	//window.onload = drawDiag();
-</script>
 </body></html>

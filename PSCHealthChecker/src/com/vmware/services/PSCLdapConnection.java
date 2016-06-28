@@ -2,7 +2,6 @@ package com.vmware.services;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.unboundid.ldap.sdk.Filter;
@@ -29,13 +28,13 @@ public class PSCLdapConnection {
 	{	
 	try {
 
-		connection = new LDAPConnection();
-		connection.connect("wdc-esxcpd-dhcp-24255", 389);
-		connection.bind("cn=Administrator,cn=users,dc=vSphere,dc=local", "VMware1!");
-		
 //		connection = new LDAPConnection();
-//		connection.connect(hmConnect.get("host"), Integer.valueOf(hmConnect.get("port")));
-//		connection.bind(hmConnect.get("username"), hmConnect.get("password"));
+//		connection.connect("wdc-esxcpd-dhcp-24255", 389);
+//		connection.bind("cn=Administrator,cn=users,dc=vSphere,dc=local", "VMware1!");
+		
+		connection = new LDAPConnection();
+		connection.connect(hmConnect.get("host"), Integer.valueOf(hmConnect.get("port")));
+		connection.bind(hmConnect.get("username"), hmConnect.get("password"));
 	    } catch (LDAPException e) {
 	        String es = e.getExceptionMessage();
 	        System.out.println(es);
@@ -55,6 +54,7 @@ public class PSCLdapConnection {
 		String SITE_DN = "cn=Sites,cn=Configuration,dc=vsphere,dc=local";
 		
 		HashMap<String,ArrayList<String>> lbMap = new HashMap<String,ArrayList<String>>();
+		ArrayList<String> vcServices = new ArrayList<String>();
 		try {
 		    sr = connection.search(searchRequest);
 			if (sr.getEntryCount() == 0) {
@@ -73,17 +73,20 @@ public class PSCLdapConnection {
 					siteModal = new SiteModal();
 					Filter serviceRegistrationFilter = 
 							Filter.createEqualityFilter(OBJECT_CLASS , "vmwLKUPServiceRegistration");
-					SearchRequest searchRequest3 = new SearchRequest(dn[2] +"," + SITE_DN , SearchScope.SUB, serviceRegistrationFilter);
-					SearchResult servicesResult = connection.search(searchRequest3);
+					SearchRequest searchServiceReg = new SearchRequest(dn[2] +"," + SITE_DN , SearchScope.SUB, serviceRegistrationFilter);
+					SearchResult servicesResult = connection.search(searchServiceReg);
 					ArrayList<String> arrServices = new ArrayList<String>();
 					for (SearchResultEntry entry3 : servicesResult.getSearchEntries()){
 						arrServices.add(entry3.getAttributeValue("vmwLKUPType"));
 						if(entry3.getAttributeValue("vmwLKUPType").equals("cs.identity")){
-								getLBMap(entry3,lbMap);
+								getLBMap(entry3, lbMap);
+						}else if(entry3.getAttributeValue("vmwLKUPType").equals("vcenterserver")){
+							vcServices.add(setVCServices(entry3));
 						}
 					}
 					siteModal.setServices(arrServices);
 					siteModal.setLbPSC(lbMap);
+					siteModal.setVcServices(vcServices);
 				}
 				siteModal.setSite_cn(site_cn[1]);
 				
@@ -118,6 +121,30 @@ public class PSCLdapConnection {
 
 		  return arrPSCServers;
 		}
+	private String setVCServices(SearchResultEntry ssoEntry) {
+		
+			Filter endpointFilter = 
+						Filter.createEqualityFilter("vmwLKUPEndpointType","com.vmware.vim");
+				SearchRequest searchRequest = new SearchRequest(ssoEntry.getDN(), SearchScope.SUB, endpointFilter);
+		SearchResult endPointResult;
+		String stsUri = null;
+		try {
+			endPointResult = connection.search(searchRequest);
+			for (SearchResultEntry entry3 : endPointResult.getSearchEntries()){
+				stsUri = entry3.getAttributeValue("vmwLKUPURI");
+			}
+		} catch (LDAPSearchException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String[] vcURL = stsUri.split(":");
+		if ((vcURL !=null) || (vcURL.length>0)){
+			return vcURL[1];
+		}
+		else 
+			return null;
+	}
+
 	private Map<String,ArrayList<String>> getLBMap(SearchResultEntry ssoEntry, Map<String,ArrayList<String>> lbMap) throws LDAPSearchException{
 		 			String ownerId = ssoEntry.getAttributeValue("vmwLKUPOwnerId");
 		 			String fqdn = ownerId != null ? ownerId.split("@")[0] : null;

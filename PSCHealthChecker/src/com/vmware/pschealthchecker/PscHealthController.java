@@ -45,7 +45,7 @@ public class PscHealthController{
 		nodesObjStr.replace(nodesObjStr.length()-1, nodesObjStr.length(), "]");
 //		System.out.println("nodestr - " + nodesObjStr);
 		modelandview.addObject("siteNodesObject" , nodesObjStr);
-		modelandview.addObject("host" , request.getParameter("host"));
+		modelandview.addObject("siteNodes" , siteNodesObject);
 		return modelandview;
 	}
 

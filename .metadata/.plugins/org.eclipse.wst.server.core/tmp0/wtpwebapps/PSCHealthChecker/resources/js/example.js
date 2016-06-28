@@ -4,12 +4,7 @@ var redraw, g, renderer;
 /* only do all this when document has finished loading (needed for RaphaelJS) */
 window.onload = function() {
 	var host = $('#host').val();
-    if (host == "wdc-esxcpd-dhcp-24251"){
-	var input = [{"site_cn":"Site1", "pscServers":"null", "pscReplicationServers":{"wdc-esxcpd-dhcp-24246.eng.vmware.com": [],"wdc-esxcpd-dhcp-24255.eng.vmware.com": ["wdc-esxcpd-dhcp-24251.eng.vmware.com","wdc-esxcpd-dhcp-24246.eng.vmware.com","wdc-esxcpd-dhcp-24245.eng.vmware.com"],"wdc-esxcpd-dhcp-24251.eng.vmware.com": ["wdc-esxcpd-dhcp-24255.eng.vmware.com"]}, "services":"[cs.componentmanager, sca, applmgmt, cs.syslog, cs.componentmanager, sca, applmgmt, cs.syslog, cs.componentmanager, sca, applmgmt, cs.syslog, cs.license, cs.license, cs.license, cs.identity, cs.identity, cs.identity]", "lbPSC":{"wdc-esxcpd-dhcp-24247.eng.vmware.com": ["wdc-esxcpd-dhcp-24255.eng.vmware.com","wdc-esxcpd-dhcp-24246.eng.vmware.com","wdc-esxcpd-dhcp-24251.eng.vmware.com"]}},{"site_cn":"Site2", "pscServers":"null", "pscReplicationServers":{"wdc-esxcpd-dhcp-24245.eng.vmware.com": ["wdc-esxcpd-dhcp-24255.eng.vmware.com"]}, "services":"[cs.identity, cs.componentmanager, cs.license, sca, applmgmt, cs.syslog]", 
-	"lbPSC":{"wdc-esxcpd-dhcp-24247.eng.vmware.com": ["wdc-esxcpd-dhcp-24255.eng.vmware.com","wdc-esxcpd-dhcp-24246.eng.vmware.com","wdc-esxcpd-dhcp-24251.eng.vmware.com"]}}];
-    }else{ 
-		var input = JSON.parse( $('#siteNodeData').val());
-	}
+	var input = JSON.parse( $('#siteNodeData').val());
 	
  var render = function(r, n) {
             /* the Raphael set is obligatory, containing all you want to display */

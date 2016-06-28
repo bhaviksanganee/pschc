@@ -21,7 +21,7 @@
 			<form action="/PSCHealthChecker/connect" method="post">
 			  <fieldset class="form-group">
 			    <label for="host">Host</label>
-			    <input type="text" class="form-control" id= "host" name="host" placeholder="Enter host">
+			    <input type="text" class="form-control" name="host" placeholder="Enter host">
 			  </fieldset>
 			  <fieldset class="form-group">
 			    <label for="port">Port</label>

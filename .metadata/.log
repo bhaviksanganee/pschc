@@ -34,3 +34,6 @@ This warning can be switched off on the Team > Git > Confirmations and Warnings 
 
 !ENTRY org.eclipse.ui 4 4 2016-06-23 13:53:46.009
 !MESSAGE Conflicting handlers for org.eclipse.jdt.ui.edit.text.java.refactor.quickMenu: {org.eclipse.jdt.internal.ui.actions.JDTQuickMenuCreator$1@6b2f876c} vs {org.eclipse.jdt.internal.ui.actions.JDTQuickMenuCreator$1@27bcdd08}
+
+!ENTRY org.eclipse.ui 4 4 2016-06-27 11:22:18.701
+!MESSAGE Conflicting handlers for org.eclipse.jdt.ui.edit.text.java.refactor.quickMenu: {org.eclipse.jdt.internal.ui.actions.JDTQuickMenuCreator$1@6b2f876c} vs {org.eclipse.jdt.internal.ui.actions.JDTQuickMenuCreator$1@27bcdd08}

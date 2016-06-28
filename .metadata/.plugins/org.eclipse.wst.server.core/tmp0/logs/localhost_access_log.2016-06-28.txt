@@ -1,0 +1,5 @@
+0:0:0:0:0:0:0:1 - - [28/Jun/2016:08:31:12 -0700] "GET /PSCHealthChecker/welcome.html HTTP/1.1" 200 2083
+0:0:0:0:0:0:0:1 - - [28/Jun/2016:08:31:12 -0700] "GET /PSCHealthChecker/resources/js/jquery-1.8.0.js HTTP/1.1" 304 -
+0:0:0:0:0:0:0:1 - - [28/Jun/2016:08:31:12 -0700] "GET /PSCHealthChecker/resources/js/bootstrap.js HTTP/1.1" 304 -
+0:0:0:0:0:0:0:1 - - [28/Jun/2016:08:31:12 -0700] "GET /PSCHealthChecker/resources/css/bootstrap.css HTTP/1.1" 304 -
+0:0:0:0:0:0:0:1 - - [28/Jun/2016:08:55:59 -0700] "POST /PSCHealthChecker/connect HTTP/1.1" 200 6847
